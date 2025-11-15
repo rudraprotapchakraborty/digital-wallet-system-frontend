@@ -16,7 +16,7 @@ https://digital-wallet-system-backend-nine.vercel.app/
 
 # 🔐 Test Login Credentials
 
-### Agent
+### Admin
 ```
 Phone: 01700000000
 Password: 12345678
