@@ -35,7 +35,7 @@ const Sidebar = ({ role }) => {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <span className="sidebar-brand">digiPay {role}</span>
+        <span className="sidebar-brand">Digital Wallet System {role}</span>
         <span className="sidebar-user">{user?.name}</span>
       </div>
       <nav className="sidebar-nav">

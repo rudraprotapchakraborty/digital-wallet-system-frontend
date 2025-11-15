@@ -12,7 +12,7 @@ const Home = () => {
         <div className="hero-text">
           <h1>Instant digital wallet for everyday payments.</h1>
           <p>
-            digiPay lets you send, receive, and manage money in seconds. Cash in
+            Digital Wallet System lets you send, receive, and manage money in seconds. Cash in
             via local agents, pay friends, and track every transaction from a
             clean, real-time dashboard.
           </p>
@@ -41,7 +41,7 @@ const Home = () => {
       </div>
 
       <section className="landing-section">
-        <h2>Why digiPay?</h2>
+        <h2>Why Digital Wallet System?</h2>
         <div className="landing-grid">
           <Card>
             <h3>Agent-assisted cash in</h3>
@@ -53,7 +53,7 @@ const Home = () => {
           <Card>
             <h3>Real-time transfers</h3>
             <p>
-              Send money to any verified digiPay user using their phone number
+              Send money to any verified Digital Wallet System user using their phone number
               or email. Track status and fees instantly.
             </p>
           </Card>

@@ -11,7 +11,7 @@ const FAQ = () => (
       </p>
     </details>
     <details>
-      <summary>Can I use digiPay without a bank account?</summary>
+      <summary>Can I use Digital Wallet System without a bank account?</summary>
       <p>
         Yes. You can operate entirely with cash through approved agents who
         handle cash in and cash out.

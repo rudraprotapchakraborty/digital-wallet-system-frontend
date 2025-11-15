@@ -2,9 +2,9 @@ import React from "react";
 
 const About = () => (
   <section className="page">
-    <h1>About digiPay</h1>
+    <h1>About Digital wallet System</h1>
     <p>
-      digiPay is built for cash-first markets that are rapidly moving to
+      Digital Wallet System is built for cash-first markets that are rapidly moving to
       digital. We connect local agents, users, and admins into one wallet
       system so everyone can see what’s happening in real time.
     </p>
