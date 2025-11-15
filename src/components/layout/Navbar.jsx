@@ -26,7 +26,7 @@ const Navbar = () => {
     <header className="navbar sticky" data-tour-id="nav-menu">
       <div className="navbar-inner">
         <Link to="/" className="logo">
-          digital<span>wallet</span>
+          Digital<span>Wallet</span>
         </Link>
         <nav className="nav-links">
           <Link to="/features">Features</Link>
