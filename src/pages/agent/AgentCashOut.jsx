@@ -3,8 +3,12 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import api from "../../services/api";
 import toast from "react-hot-toast";
+import { useTheme } from "../../context/ThemeContext";
 
 const AgentCashOut = () => {
+  const { theme } = useTheme();
+  const dark = theme === "dark";
+
   const [form, setForm] = useState({ phone: "", amount: "" });
   const [loading, setLoading] = useState(false);
 
@@ -20,10 +24,9 @@ const AgentCashOut = () => {
 
     try {
       setLoading(true);
-
       await api.post("/agent/cash-out", {
-        phone: form.phone,   // ← FIXED
-        amount: value,       // ← FIXED
+        phone: form.phone,
+        amount: value,
       });
 
       toast.success("Cash out successful.");
@@ -36,29 +39,56 @@ const AgentCashOut = () => {
   };
 
   return (
-    <section className="page form-page">
-      <h1>Cash Out</h1>
+    <section className="max-w-xl">
+      {/* TITLE */}
+      <h1
+        className={`text-2xl font-bold tracking-tight ${
+          dark ? "text-white" : "text-black"
+        }`}
+      >
+        Cash Out
+      </h1>
 
-      <form className="form" onSubmit={handleSubmit}>
-        <Input
-          label="User Phone"
-          name="phone"
-          value={form.phone}
-          onChange={handleChange}
-        />
+      <p
+        className={`mt-1 text-sm ${
+          dark ? "text-neutral-300" : "text-gray-600"
+        }`}
+      >
+        Withdraw money from a user wallet using their phone number.
+      </p>
 
-        <Input
-          label="Amount (₹)"
-          name="amount"
-          type="number"
-          value={form.amount}
-          onChange={handleChange}
-        />
+      {/* FORM CARD */}
+      <div
+        className={`mt-6 rounded-xl border p-6
+          ${
+            dark
+              ? "border-neutral-800 bg-neutral-900"
+              : "border-gray-200 bg-white"
+          }`}
+      >
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="User phone number"
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+            placeholder="01XXXXXXXXX"
+          />
 
-        <Button type="submit" disabled={loading}>
-          {loading ? "Processing..." : "Cash Out"}
-        </Button>
-      </form>
+          <Input
+            label="Amount (₹)"
+            name="amount"
+            type="number"
+            value={form.amount}
+            onChange={handleChange}
+            placeholder="Enter amount"
+          />
+
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? "Processing..." : "Cash Out"}
+          </Button>
+        </form>
+      </div>
     </section>
   );
 };

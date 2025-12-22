@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
+import MobileSidebar from "./MobileSidebar";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import Button from "../ui/Button";
@@ -11,20 +12,29 @@ const DashboardLayout = ({ role }) => {
   const { theme, toggleTheme } = useTheme();
   const dark = theme === "dark";
 
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <div
       className={`min-h-screen flex ${
         dark ? "bg-neutral-950 text-white" : "bg-gray-50 text-black"
       }`}
     >
-      {/* SIDEBAR */}
+      {/* DESKTOP SIDEBAR */}
       <Sidebar role={role} />
+
+      {/* MOBILE SIDEBAR */}
+      <MobileSidebar
+        role={role}
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+      />
 
       {/* MAIN */}
       <div className="flex flex-1 flex-col">
         {/* TOPBAR */}
         <header
-          className={`sticky top-0 z-40 flex h-14 items-center justify-between border-b px-6
+          className={`sticky top-0 z-40 flex h-14 items-center justify-between border-b px-4 sm:px-6
             ${
               dark
                 ? "border-neutral-800 bg-neutral-900"
@@ -32,8 +42,19 @@ const DashboardLayout = ({ role }) => {
             }`}
         >
           {/* LEFT */}
-          <div className="font-semibold capitalize">
-            {role} dashboard
+          <div className="flex items-center gap-3">
+            {/* MOBILE MENU BUTTON */}
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="md:hidden text-xl"
+              aria-label="Open menu"
+            >
+              ☰
+            </button>
+
+            <span className="font-semibold capitalize hidden sm:inline">
+              {role} dashboard
+            </span>
           </div>
 
           {/* RIGHT */}
@@ -66,7 +87,7 @@ const DashboardLayout = ({ role }) => {
         </header>
 
         {/* CONTENT */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 sm:p-6">
           <Outlet />
         </main>
       </div>

@@ -10,7 +10,7 @@ const Sidebar = ({ role }) => {
 
   const linksByRole = {
     user: [
-      { to: "/user", label: "Overview" },
+      { to: "/user", label: "Overview", end: true },
       { to: "/user/deposit", label: "Deposit" },
       { to: "/user/withdraw", label: "Withdraw" },
       { to: "/user/send", label: "Send Money" },
@@ -18,14 +18,14 @@ const Sidebar = ({ role }) => {
       { to: "/user/profile", label: "Profile" },
     ],
     agent: [
-      { to: "/agent", label: "Overview" },
+      { to: "/agent", label: "Overview", end: true },
       { to: "/agent/cash-in", label: "Cash In" },
       { to: "/agent/cash-out", label: "Cash Out" },
       { to: "/agent/transactions", label: "Activity" },
       { to: "/agent/profile", label: "Profile" },
     ],
     admin: [
-      { to: "/admin", label: "Overview" },
+      { to: "/admin", label: "Overview", end: true },
       { to: "/admin/users", label: "Users" },
       { to: "/admin/agents", label: "Agents" },
       { to: "/admin/transactions", label: "Transactions" },
@@ -61,6 +61,7 @@ const Sidebar = ({ role }) => {
           <NavLink
             key={link.to}
             to={link.to}
+            end={link.end}
             className={({ isActive }) =>
               `flex items-center rounded-lg px-4 py-2 text-sm font-medium transition
               ${

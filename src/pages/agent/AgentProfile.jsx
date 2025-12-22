@@ -2,16 +2,21 @@ import React, { useState } from "react";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 import api from "../../services/api";
 import toast from "react-hot-toast";
 
 const AgentProfile = () => {
   const { user, setUser } = useAuth();
+  const { theme } = useTheme();
+  const dark = theme === "dark";
+
   const [form, setForm] = useState({
     name: user?.name || "",
     phone: user?.phone || "",
     password: "",
   });
+
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) =>
@@ -19,16 +24,27 @@ const AgentProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       setLoading(true);
-      const payload = { name: form.name, phone: form.phone };
+
+      const payload = {
+        name: form.name,
+        phone: form.phone,
+      };
+
       if (form.password) payload.password = form.password;
-      const res = await api.patch("/auth/me", payload).catch(() => ({
-        data: { user: { ...user, name: form.name, phone: form.phone } },
-      }));
+
+      const res = await api
+        .patch("/auth/me", payload)
+        .catch(() => ({
+          data: { user: { ...user, name: form.name, phone: form.phone } },
+        }));
+
       setUser(res.data.user);
       localStorage.setItem("wallet_user", JSON.stringify(res.data.user));
       toast.success("Profile updated.");
+      setForm({ ...form, password: "" });
     } catch (err) {
       toast.error(err?.response?.data?.message || "Update failed");
     } finally {
@@ -37,32 +53,62 @@ const AgentProfile = () => {
   };
 
   return (
-    <section className="page form-page">
-      <h1>Profile</h1>
-      <form className="form" onSubmit={handleSubmit}>
-        <Input
-          label="Full name"
-          name="name"
-          value={form.name}
-          onChange={handleChange}
-        />
-        <Input
-          label="Phone"
-          name="phone"
-          value={form.phone}
-          onChange={handleChange}
-        />
-        <Input
-          label="New password (optional)"
-          name="password"
-          type="password"
-          value={form.password}
-          onChange={handleChange}
-        />
-        <Button type="submit" disabled={loading}>
-          {loading ? "Saving..." : "Save changes"}
-        </Button>
-      </form>
+    <section className="max-w-xl space-y-6">
+      {/* HEADER */}
+      <div>
+        <h1
+          className={`text-2xl font-bold tracking-tight ${
+            dark ? "text-white" : "text-black"
+          }`}
+        >
+          Profile
+        </h1>
+        <p
+          className={`mt-1 text-sm ${
+            dark ? "text-neutral-300" : "text-gray-600"
+          }`}
+        >
+          Update your personal details and password.
+        </p>
+      </div>
+
+      {/* FORM CARD */}
+      <div
+        className={`rounded-xl border p-6
+          ${
+            dark
+              ? "border-neutral-800 bg-neutral-900"
+              : "border-gray-200 bg-white"
+          }`}
+      >
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="Full name"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+          />
+
+          <Input
+            label="Phone number"
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+          />
+
+          <Input
+            label="New password (optional)"
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+          />
+
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? "Saving..." : "Save changes"}
+          </Button>
+        </form>
+      </div>
     </section>
   );
 };
