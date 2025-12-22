@@ -1,4 +1,17 @@
 import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { 
+  History, 
+  ArrowUpRight, 
+  ArrowDownLeft, 
+  IndianRupee, 
+  Search, 
+  Calendar,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  RefreshCcw
+} from "lucide-react";
 import api from "../../services/api";
 import DataTable from "../../components/common/DataTable";
 import Pagination from "../../components/common/Pagination";
@@ -25,7 +38,7 @@ const UserTransactions = () => {
       setTransactions(data.transactions || data);
       setTotalPages(data.totalPages || 1);
     } catch (e) {
-      console.error(e);
+      console.error("Ledger Sync Error:", e);
     } finally {
       setLoading(false);
     }
@@ -33,56 +46,133 @@ const UserTransactions = () => {
 
   useEffect(() => {
     fetchTransactions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, JSON.stringify(filters)]);
 
   const columns = [
-    { header: "Date", accessor: "createdAt" },
-    { header: "Type", accessor: "type" },
-    {
-      header: "Amount (₹)",
-      accessor: "amount",
-      render: (row) => (row.amount ? row.amount.toFixed(2) : "0.00"),
+    { 
+      header: "Timestamp", 
+      accessor: "createdAt",
+      render: (row) => (
+        <div className="flex flex-col">
+          <span className="font-bold tracking-tight text-sm">
+            {new Date(row.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+          </span>
+          <span className="text-[10px] opacity-40 uppercase font-black">
+            {new Date(row.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
+      )
     },
-    { header: "Status", accessor: "status" },
+    { 
+      header: "Activity Type", 
+      accessor: "type",
+      render: (row) => {
+        const isInbound = ["add_money", "cash_in", "receive"].includes(row.type);
+        return (
+          <div className="flex items-center gap-3">
+            <div className={`h-8 w-8 rounded-xl flex items-center justify-center ${
+              isInbound ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'
+            }`}>
+              {isInbound ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
+            </div>
+            <span className="text-xs font-black uppercase tracking-widest opacity-80">
+              {row.type.replace("_", " ")}
+            </span>
+          </div>
+        );
+      }
+    },
+    {
+      header: "Amount",
+      accessor: "amount",
+      render: (row) => (
+        <div className="flex items-center font-black text-sm tracking-tight">
+          <IndianRupee size={12} className="mr-0.5 opacity-40" />
+          {row.amount ? row.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : "0.00"}
+        </div>
+      ),
+    },
+    { 
+      header: "Status", 
+      accessor: "status",
+      render: (row) => {
+        const statusMap = {
+          completed: { color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20", icon: <CheckCircle2 size={12}/> },
+          pending: { color: "text-amber-500 bg-amber-500/10 border-amber-500/20", icon: <Clock size={12}/> },
+          failed: { color: "text-rose-500 bg-rose-500/10 border-rose-500/20", icon: <XCircle size={12}/> },
+          reversed: { color: "text-gray-500 bg-gray-500/10 border-gray-500/20", icon: <RefreshCcw size={12}/> }
+        };
+        const current = statusMap[row.status] || statusMap.pending;
+        return (
+          <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${current.color}`}>
+            {current.icon}
+            {row.status}
+          </div>
+        );
+      }
+    },
   ];
 
   return (
-    <section className="space-y-6">
-      {/* HEADER */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Transaction history
-        </h1>
-        <p
-          className={`mt-2 text-sm ${
-            dark ? "text-neutral-200" : "text-gray-600"
+    <section className="space-y-8">
+      {/* HEADER SECTION */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col md:flex-row md:items-end justify-between gap-6"
+      >
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-[10px] font-black uppercase tracking-widest mb-4">
+            <History size={12} /> Financial Records
+          </div>
+          <h1 className={`text-4xl font-black tracking-tighter ${dark ? "text-white" : "text-slate-900"}`}>
+            Transaction <span className="text-blue-500">History</span>
+          </h1>
+          <p className={`mt-2 text-lg ${dark ? "text-neutral-400" : "text-slate-500"}`}>
+            Review, audit, and track every movement of your digital assets.
+          </p>
+        </div>
+
+        <button 
+          onClick={fetchTransactions}
+          className={`group p-4 rounded-2xl border transition-all ${
+            dark ? "bg-white/5 border-white/10 hover:bg-white/10" : "bg-white border-black/5 hover:shadow-md"
           }`}
         >
-          View and filter all your wallet transactions.
-        </p>
-      </div>
+          <RefreshCcw size={18} className={`transition-transform duration-700 ${loading ? "animate-spin text-blue-500" : "opacity-40 group-hover:rotate-180"}`} />
+        </button>
+      </motion.div>
 
-      {/* FILTERS */}
-      <Card>
+      {/* SEARCH & FILTERS HUB */}
+      <Card className="border-none shadow-xl shadow-black/[0.02]">
+        <div className="flex items-center gap-2 mb-6 opacity-40">
+          <Search size={18} className="text-blue-500" />
+          <span className="text-xs font-black uppercase tracking-widest">Filter Records</span>
+        </div>
         <FiltersBar filters={filters} onChange={setFilters} />
       </Card>
 
-      {/* TABLE */}
-      <Card className="overflow-x-auto">
+      {/* DATA CORE */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
         <DataTable
           columns={columns}
           data={transactions}
           loading={loading}
         />
-      </Card>
+      </motion.div>
 
       {/* PAGINATION */}
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        onChange={setPage}
-      />
+      <div className="flex justify-center pt-4">
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onChange={setPage}
+        />
+      </div>
     </section>
   );
 };

@@ -1,9 +1,20 @@
 import React, { useState } from "react";
-import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Zap, 
+  Phone, 
+  IndianRupee, 
+  ShieldCheck, 
+  Loader2, 
+  ArrowRightCircle, 
+  CheckCircle2 
+} from "lucide-react";
 import api from "../../services/api";
 import toast from "react-hot-toast";
 import { useTheme } from "../../context/ThemeContext";
+import Input from "../../components/ui/Input";
+import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
 
 const AgentCashIn = () => {
   const { theme } = useTheme();
@@ -11,16 +22,19 @@ const AgentCashIn = () => {
 
   const [form, setForm] = useState({ phone: "", amount: "" });
   const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    if (isSuccess) setIsSuccess(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const value = Number(form.amount);
-    if (!form.phone) return toast.error("Enter user phone.");
-    if (!value || value <= 0) return toast.error("Enter a positive amount.");
+    if (!form.phone) return toast.error("User identification required.");
+    if (!value || value <= 0) return toast.error("Please enter a valid amount.");
 
     try {
       setLoading(true);
@@ -29,65 +43,120 @@ const AgentCashIn = () => {
         amount: value,
       });
 
-      toast.success("Cash in successful.");
+      setIsSuccess(true);
+      toast.success(`₹${value} successfully credited to ${form.phone}`, {
+        icon: '💰',
+        style: { 
+          borderRadius: '12px', 
+          background: dark ? '#171717' : '#fff', 
+          color: dark ? '#fff' : '#000' 
+        }
+      });
       setForm({ phone: "", amount: "" });
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Cash in failed");
+      toast.error(err?.response?.data?.message || "Transaction synchronization failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="max-w-xl">
-      {/* TITLE */}
-      <h1
-        className={`text-2xl font-bold tracking-tight ${
-          dark ? "text-white" : "text-black"
-        }`}
+    <section className="max-w-2xl">
+      {/* TERMINAL HEADER */}
+      <motion.div 
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="mb-8"
       >
-        Cash In
-      </h1>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-[10px] font-black uppercase tracking-widest mb-4">
+          <Zap size={12} className="fill-current" /> Agent Terminal
+        </div>
+        <h1 className={`text-4xl font-black tracking-tighter ${dark ? "text-white" : "text-slate-900"}`}>
+          Cash <span className="text-blue-500">In</span>
+        </h1>
+        <p className={`mt-2 text-lg ${dark ? "text-neutral-400" : "text-slate-500"}`}>
+          Identify user via phone number to initiate an instant liquidity transfer.
+        </p>
+      </motion.div>
 
-      <p
-        className={`mt-1 text-sm ${
-          dark ? "text-neutral-300" : "text-gray-600"
-        }`}
-      >
-        Add money to a user wallet using their phone number.
-      </p>
+      <div className="grid md:grid-cols-5 gap-6">
+        {/* MAIN TRANSACTION CARD */}
+        <Card className="md:col-span-3 overflow-hidden border-none shadow-2xl">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="relative">
+              <Input
+                label="Recipient Phone"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                placeholder="01XXXXXXXXX"
+                icon={Phone}
+              />
+              {form.phone.length >= 11 && (
+                <div className="absolute right-4 top-10 text-emerald-500">
+                  <CheckCircle2 size={18} />
+                </div>
+              )}
+            </div>
 
-      {/* FORM CARD */}
-      <div
-        className={`mt-6 rounded-xl border p-6
-          ${
-            dark
-              ? "border-neutral-800 bg-neutral-900"
-              : "border-gray-200 bg-white"
-          }`}
-      >
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <Input
-            label="User phone number"
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            placeholder="01XXXXXXXXX"
-          />
+            <Input
+              label="Transaction Amount"
+              name="amount"
+              type="number"
+              value={form.amount}
+              onChange={handleChange}
+              placeholder="0.00"
+              icon={IndianRupee}
+            />
 
-          <Input
-            label="Amount (₹)"
-            name="amount"
-            type="number"
-            value={form.amount}
-            onChange={handleChange}
-            placeholder="Enter amount"
-          />
+            <Button 
+              type="submit" 
+              disabled={loading} 
+              className="w-full h-14 text-lg font-black uppercase tracking-widest shadow-lg shadow-blue-500/20"
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="animate-spin" size={20} /> Processing...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  Initiate Transfer <ArrowRightCircle size={20} />
+                </div>
+              )}
+            </Button>
+          </form>
+        </Card>
 
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Processing..." : "Cash In"}
-          </Button>
-        </form>
+        {/* SIDEBAR TIPS / STATUS */}
+        <div className="md:col-span-2 space-y-4">
+          <Card className={`border-none ${dark ? 'bg-blue-500/5' : 'bg-blue-50'}`}>
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-3 flex items-center gap-2">
+              <ShieldCheck size={14} /> Security Note
+            </h4>
+            <p className="text-xs leading-relaxed opacity-70">
+              Ensure you have collected the physical cash before confirming the digital transfer. All agent operations are logged.
+            </p>
+          </Card>
+
+          <AnimatePresence>
+            {isSuccess && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+              >
+                <Card className="border-emerald-500/20 bg-emerald-500/5">
+                  <div className="flex items-center gap-3 text-emerald-500">
+                    <CheckCircle2 size={20} />
+                    <span className="text-xs font-bold uppercase tracking-widest">
+                      Last Transaction Success
+                    </span>
+                  </div>
+                </Card>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </section>
   );
