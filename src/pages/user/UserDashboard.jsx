@@ -13,8 +13,12 @@ import {
   PieChart,
   Pie,
 } from "recharts";
+import { useTheme } from "../../context/ThemeContext";
 
 const UserDashboard = () => {
+  const { theme } = useTheme();
+  const dark = theme === "dark";
+
   const [wallet, setWallet] = useState(null);
   const [tx, setTx] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,8 +31,7 @@ const UserDashboard = () => {
           api.get("/wallet/transactions", { params: { page: 1 } }),
         ]);
         setWallet(wRes.data);
-        const tdata = tRes.data.transactions || tRes.data;
-        setTx(tdata);
+        setTx(tRes.data.transactions || tRes.data);
       } catch (e) {
         console.error(e);
       } finally {
@@ -45,14 +48,14 @@ const UserDashboard = () => {
       sub: "Available balance",
     },
     {
-      label: "Transactions (recent)",
+      label: "Recent transactions",
       value: tx.length,
-      sub: "Last page loaded",
+      sub: "Loaded activity",
     },
     {
       label: "Completed",
       value: tx.filter((t) => t.status === "completed").length,
-      sub: "In recent activity",
+      sub: "Successful transfers",
     },
   ];
 
@@ -64,56 +67,98 @@ const UserDashboard = () => {
   }));
 
   return (
-    <div className="page">
-      <h1>User overview</h1>
-      {loading ? <SkeletonBlock height={130} /> : <StatsCards items={stats} />}
+    <section className="space-y-8">
+      {/* TITLE */}
+      <h1 className="text-2xl font-bold tracking-tight">
+        User overview
+      </h1>
 
-      <div className="chart-grid" data-tour-id="chart-section">
+      {/* STATS */}
+      {loading ? (
+        <SkeletonBlock height={130} />
+      ) : (
+        <StatsCards items={stats} />
+      )}
+
+      {/* CHARTS */}
+      <div
+        className="grid gap-6 md:grid-cols-2"
+        data-tour-id="chart-section"
+      >
+        {/* BAR CHART */}
         <Card>
-          <h3>Volume by type</h3>
+          <h3 className="mb-4 text-lg font-semibold">
+            Volume by type
+          </h3>
+
           {loading ? (
             <SkeletonBlock />
           ) : (
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={240}>
               <BarChart data={byType}>
-                <XAxis dataKey="type" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="total" />
+                <XAxis
+                  dataKey="type"
+                  stroke={dark ? "#e5e7eb" : "#374151"}
+                />
+                <YAxis stroke={dark ? "#e5e7eb" : "#374151"} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: dark ? "#0a0a0a" : "#ffffff",
+                    border: "none",
+                    color: dark ? "#ffffff" : "#000000",
+                  }}
+                />
+                <Bar dataKey="total" fill="#3b82f6" />
               </BarChart>
             </ResponsiveContainer>
           )}
         </Card>
+
+        {/* PIE CHART */}
         <Card>
-          <h3>Completed vs others</h3>
+          <h3 className="mb-4 text-lg font-semibold">
+            Completed vs others
+          </h3>
+
           {loading ? (
             <SkeletonBlock />
           ) : (
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={240}>
               <PieChart>
                 <Pie
                   data={[
                     {
                       name: "Completed",
-                      value: tx.filter((t) => t.status === "completed").length,
+                      value: tx.filter(
+                        (t) => t.status === "completed"
+                      ).length,
                     },
                     {
                       name: "Pending / reversed",
-                      value: tx.filter((t) => t.status !== "completed").length,
+                      value: tx.filter(
+                        (t) => t.status !== "completed"
+                      ).length,
                     },
                   ]}
                   dataKey="value"
                   nameKey="name"
                   outerRadius={80}
                   label
+                  fill="#3b82f6"
                 />
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: dark ? "#0a0a0a" : "#ffffff",
+                    border: "none",
+                    color: dark ? "#ffffff" : "#000000",
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           )}
         </Card>
       </div>
-    </div>
+    </section>
   );
 };
 
