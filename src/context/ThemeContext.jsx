@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeContext = createContext(null);
 
@@ -8,12 +8,15 @@ export const ThemeProvider = ({ children }) => {
   );
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
+    const body = document.body;
+
+    body.classList.toggle("dark", theme === "dark");
     localStorage.setItem("wallet_theme", theme);
   }, [theme]);
 
-  const toggleTheme = () =>
-    setTheme((t) => (t === "light" ? "dark" : "light"));
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

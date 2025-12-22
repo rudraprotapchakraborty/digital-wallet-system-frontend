@@ -41,9 +41,10 @@ import AdminSettings from "./pages/admin/AdminSettings";
 
 const App = () => {
   return (
-    <div className="app">
+    <div className="min-h-screen flex flex-col bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <Navbar />
-      <main className="main-content">
+
+      <main className="flex-1">
         <Routes>
           {/* Public */}
           <Route path="/" element={<Home />} />
@@ -108,9 +109,11 @@ const App = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+
       <Footer />
     </div>
   );
 };
+
 
 export default App;
