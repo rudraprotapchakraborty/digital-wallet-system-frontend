@@ -8,7 +8,7 @@ const Footer = () => {
 
   return (
     <footer
-      className={`mt-20 border-t ${
+      className={`border-t ${
         dark
           ? "border-neutral-800 bg-neutral-950 text-gray-200"
           : "border-gray-200 bg-gray-50 text-gray-700"
