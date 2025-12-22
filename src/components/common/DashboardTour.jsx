@@ -14,29 +14,33 @@ const DashboardTour = () => {
 
   const steps = [
     {
-      target: '[data-tour-id="nav-menu"]',
-      content: "Use the navigation menu to switch between sections.",
+      target: '[data-tour-id="sidebar"]',
+      content:
+        "This sidebar lets you navigate between dashboard sections based on your role.",
+      placement: "right",
     },
     {
       target: '[data-tour-id="stats-cards"]',
-      content: "These cards summarize your key wallet stats.",
-    },
-    {
-      target: '[data-tour-id="chart-section"]',
-      content: "Charts show how your transactions evolve over time.",
+      content:
+        "These cards give you a quick overview of important metrics and activity.",
+      placement: "bottom",
     },
     {
       target: '[data-tour-id="table-filters"]',
-      content: "Filter and search through long records quickly.",
+      content:
+        "Use filters and search to quickly find records in large tables.",
+      placement: "bottom",
     },
     {
-      target: '[data-tour-id="theme-toggle"]',
-      content: "Toggle between light and dark mode here.",
+      target: "body",
+      content:
+        "That’s it! You can explore the dashboard freely. You can restart this tour anytime.",
+      placement: "center",
     },
   ];
 
   const handleJoyrideCallback = (data) => {
-    if (["finished", "skipped"].includes(data.status)) {
+    if (data.status === "finished" || data.status === "skipped") {
       localStorage.setItem("wallet_tour_done", "true");
       setRun(false);
     }
@@ -50,19 +54,23 @@ const DashboardTour = () => {
         continuous
         showSkipButton
         scrollToFirstStep
+        disableOverlayClose
         styles={{
           options: {
             zIndex: 10000,
+            primaryColor: "#2563eb",
+            textColor: "#111827",
           },
         }}
         callback={handleJoyrideCallback}
       />
+
       <Button
-        variant="ghost"
+        variant="outline"
         onClick={() => setRun(true)}
         title="Restart guided tour"
       >
-        ? Tour
+        Tour
       </Button>
     </>
   );

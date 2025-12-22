@@ -72,9 +72,7 @@ const Navbar = () => {
                 to={`/${item}`}
                 onClick={() => setMenuOpen(false)}
                 className={`rounded-lg px-3 py-3 transition ${
-                  dark
-                    ? "hover:bg-neutral-800"
-                    : "hover:bg-gray-100"
+                  dark ? "hover:bg-neutral-800" : "hover:bg-gray-100"
                 }`}
               >
                 {item.charAt(0).toUpperCase() + item.slice(1)}
@@ -160,39 +158,40 @@ const Navbar = () => {
             </Link>
 
             <nav className="flex items-center gap-8">
-              {["features", "pricing", "about", "faq", "contact"].map((item) => (
-                <Link
-                  key={item}
-                  to={`/${item}`}
-                  className={`text-sm font-medium transition ${
-                    dark
-                      ? "text-gray-300 hover:text-white"
-                      : "text-gray-700 hover:text-black"
-                  }`}
-                >
-                  {item.charAt(0).toUpperCase() + item.slice(1)}
-                </Link>
-              ))}
+              {["features", "pricing", "about", "faq", "contact"].map(
+                (item) => (
+                  <Link
+                    key={item}
+                    to={`/${item}`}
+                    className={`text-sm font-medium transition ${
+                      dark
+                        ? "text-gray-300 hover:text-white"
+                        : "text-gray-700 hover:text-black"
+                    }`}
+                  >
+                    {item.charAt(0).toUpperCase() + item.slice(1)}
+                  </Link>
+                )
+              )}
             </nav>
 
             <div className="flex items-center gap-3">
-<button
-  onClick={toggleTheme}
-  className={`relative flex h-9 w-16 items-center rounded-full p-1 transition ${
-    dark ? "bg-neutral-800" : "bg-gray-200"
-  }`}
->
-  <span
-    className={`flex h-7 w-7 items-center justify-center rounded-full text-sm transition-all duration-300 ${
-      dark
-        ? "translate-x-7 bg-black text-yellow-400"
-        : "translate-x-0 bg-white text-slate-700"
-    }`}
-  >
-    {dark ? "☀️" : "🌙"}
-  </span>
-</button>
-
+              <button
+                onClick={toggleTheme}
+                className={`relative flex h-9 w-16 items-center rounded-full p-1 transition ${
+                  dark ? "bg-neutral-800" : "bg-gray-200"
+                }`}
+              >
+                <span
+                  className={`flex h-7 w-7 items-center justify-center rounded-full text-sm transition-all duration-300 ${
+                    dark
+                      ? "translate-x-7 bg-black text-yellow-400"
+                      : "translate-x-0 bg-white text-slate-700"
+                  }`}
+                >
+                  {dark ? "☀️" : "🌙"}
+                </span>
+              </button>
 
               {user ? (
                 <>
