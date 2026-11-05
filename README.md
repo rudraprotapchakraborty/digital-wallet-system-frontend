@@ -11,6 +11,6 @@ A React and JavaScript wallet app built with Vite and Tailwind CSS. The app incl
 
 ## Google sign-in
 
-Create a Web application client in [Google Cloud](https://console.cloud.google.com/apis/credentials). Under Authorized JavaScript origins, add `http://localhost:3000` and the exact deployed frontend origin. Put its public ID in `VITE_GOOGLE_CLIENT_ID` in a local `.env.local` and in `GOOGLE_CLIENT_ID` on the API. Restart both dev servers or rebuild the deployed frontend. Keep secrets out of Vite variables.
+Create a Web application client in [Google Cloud](https://console.cloud.google.com/apis/credentials). Under Authorized JavaScript origins, add `http://localhost:3000` and the exact deployed frontend origin. Put its public ID in `GOOGLE_CLIENT_ID` in a local `.env.local` and in `GOOGLE_CLIENT_ID` on the API. Restart both dev servers or rebuild the deployed frontend. Keep secrets out of Vite variables.
 
 First-time Google users choose a wallet phone number. Returning users go directly to their personal dashboard. Password accounts enter their details on one form and confirm their email on a second screen. They can sign in with email or wallet phone number. Account settings support photo uploads, email and password changes, and confirmed wallet closure. The login page displays the seeded personal, agent and admin test logins.

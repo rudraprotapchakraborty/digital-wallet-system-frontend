@@ -8,7 +8,7 @@ import api from "../../services/api";
 import EmailCode, { useResendTimer } from "../../components/common/EmailCode";
 import DemoLogins from "./DemoLogins";
 
-const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const clientId = import.meta.env.GOOGLE_CLIENT_ID;
 
 export default function AuthPage({ signup = false }) {
   const { user, login, register, googleLogin } = useAuth();
