@@ -38,8 +38,9 @@ export default function AuthPage({ signup = false }) {
     finally { setBusy(false); }
   }
   async function google(token, phone) {
-    const account = await googleLogin(token, phone);
+    const account = await googleLogin(token, phone, signup ? role : "user");
     if (account.requiresPhone) setCredential(token);
+    else if (account.pendingApproval) navigate("/login", { replace: true, state: { registered: "agent" } });
     else navigate(destination(account), { replace: true });
   }
   async function sendCode(fields) {
@@ -72,7 +73,14 @@ export default function AuthPage({ signup = false }) {
           <label>Wallet phone number<input name="phone" type="tel" autoComplete="tel" required pattern="[+]?[0-9]{7,15}" placeholder="Enter your wallet phone number"/></label>
         </> : <>
           {signup && <><label>Full name<input name="name" defaultValue={draft?.name || ""} autoComplete="name" required maxLength={100}/></label>
-            <label>Account type<select name="role" value={role} onChange={e => setRole(e.target.value)}><option value="user">Personal wallet</option><option value="agent">Agent account</option></select></label></>}
+            <fieldset className="signup-role"><legend>Account type</legend>
+              <div className="role-switch" data-agent={role === "agent"}>
+                {["user", "agent"].map(value => <label key={value}>
+                  <input type="radio" name="role" value={value} checked={role === value} onChange={() => setRole(value)} className="sr-only"/>
+                  <span>{value === "user" ? "Personal wallet" : "Agent account"}</span>
+                </label>)}
+              </div>
+            </fieldset></>}
           {signup ? <>
             <label>Email address<input name="email" defaultValue={draft?.email || ""} type="email" autoComplete="email" required maxLength={254} placeholder="you@example.com"/></label>
             <label>Wallet phone number<input name="phone" type="tel" defaultValue={draft?.phone || ""} autoComplete="tel" pattern="[+]?[0-9]{7,15}" required placeholder="Enter your phone number"/></label>
@@ -86,7 +94,7 @@ export default function AuthPage({ signup = false }) {
         <button type="button" className="settings-link" disabled={busy || seconds > 0} onClick={() => handle(() => sendCode(draft))}>{seconds ? `Resend in ${seconds}s` : "Resend code"}</button>
         <button type="button" disabled={busy} onClick={() => { setPending(null); setError(""); }}>Edit registration details</button>
       </div> : setup ? <button className="settings-link mt-4" disabled={busy} onClick={() => { setCredential(null); setError(""); }}>Back to sign-in details</button>
-        : role === "user" && clientId && <div className="google-option"><span>or</span><GoogleOAuthProvider clientId={clientId} onScriptLoadError={() => setError("Google sign-in could not load. Use email or refresh to retry.")}>
+        : clientId && <div className="google-option"><span>or</span><GoogleOAuthProvider clientId={clientId} onScriptLoadError={() => setError("Google sign-in could not load. Use email or refresh to retry.")}>
           <GoogleLogin onSuccess={r => handle(() => google(r.credential))} onError={() => setError("Google sign-in was interrupted. Try again.")} shape="pill" text="continue_with"/>
         </GoogleOAuthProvider></div>}
       <p className="auth-switch">{signup ? "Already have a wallet?" : "New to DigiPay?"} <Link state={{ from: location.state?.from }} to={signup ? "/login" : "/register"}>{signup ? "Log in" : "Create a wallet"}</Link></p>

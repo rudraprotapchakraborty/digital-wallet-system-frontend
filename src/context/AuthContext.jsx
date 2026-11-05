@@ -36,7 +36,7 @@ export function AuthProvider({ children }) {
 
   async function authenticate(path, fields) {
     const { data } = await api.post(path, fields);
-    if (data.requiresPhone) return data;
+    if (data.requiresPhone || data.pendingApproval) return data;
     return acceptSession(data);
   }
 
@@ -48,7 +48,7 @@ export function AuthProvider({ children }) {
   }
 
   const login = (identifier, password) => authenticate("/auth/login", { identifier, password });
-  const googleLogin = (credential, phone) => authenticate("/auth/google", { credential, phone });
+  const googleLogin = (credential, phone, role) => authenticate("/auth/google", { credential, phone, role });
   const register = fields => api.post("/auth/register", fields);
   function logout() {
     localStorage.removeItem("wallet_token");

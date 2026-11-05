@@ -96,6 +96,7 @@ export default function UserProfile() {
     return "Password saved.";
   }
   async function openDeletion() {
+    if (user.role === "admin") { setProof(""); setDeletion({}); return; }
     const { data } = await api.get("/wallet/me");
     setProof(""); setDeletion({ balance: data.balance });
   }
@@ -139,7 +140,7 @@ export default function UserProfile() {
             </div>{feedback("email")}
           </form>}
       </Section>
-      <Section id="settings-phone" title="Wallet phone number" hint="People use this number to send money to your wallet.">
+      <Section id="settings-phone" title={user.role === "admin" ? "Account phone number" : "Wallet phone number"} hint={user.role === "admin" ? "Use this number to sign in." : "People use this number to send money to your wallet."}>
         <form className="field-stack" onSubmit={submit("phone", () => saveDetails({ phone }))}>
           <label>Phone number<input type="tel" autoComplete="tel" pattern="[+]?[0-9]{7,15}" required value={phone} onChange={e => setPhone(e.target.value)}/></label>
           <button className="settings-save" disabled={phone.trim() === user.phone}>{busy === "phone" ? "Saving…" : "Save phone number"}</button>{feedback("phone")}
@@ -160,8 +161,8 @@ export default function UserProfile() {
       </Section>
       <Section id="settings-delete" title="Delete account" hint="Permanently close your account and wallet. Other participants keep their transaction records.">
         {deletion ? <form className="field-stack deletion-panel" onSubmit={submit("delete", removeAccount)}>
-          <h3>Permanently delete this wallet?</h3><p>This cannot be undone. Your wallet balance is <strong>{deletion.balance.toLocaleString("en-IN", { style: "currency", currency: "INR" })}</strong>.
-          {deletion.balance > 0 && " Deleting it forfeits that balance."}</p>
+          <h3>Permanently delete this account?</h3><p>This cannot be undone. {deletion.balance !== undefined && <>Your wallet balance is <strong>{deletion.balance.toLocaleString("en-IN", { style: "currency", currency: "INR" })}</strong>.
+          {deletion.balance > 0 && " Deleting it forfeits that balance."}</>}</p>
           <label>Type {identifier} to confirm<input type={user.email ? "email" : "tel"} required autoComplete="off" value={proof} onChange={e => setProof(e.target.value)}/></label>
           <div className="settings-actions"><button className="delete-confirm" disabled={proof.trim().toLowerCase() !== identifier}>{busy === "delete" ? "Deleting…" : "Permanently delete account"}</button>
             <button type="button" onClick={() => { setDeletion(null); setProof(""); setMessage(null); }}>Cancel</button></div>

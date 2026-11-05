@@ -5,8 +5,8 @@ import { useAuth } from "../../context/AuthContext";
 import DashboardTour from "../common/DashboardTour";
 
 const links = {
-  user: [["", "Overview"], ["send", "Send money"], ["deposit", "Add money"], ["withdraw", "Withdraw"], ["transactions", "History"], ["profile", "Profile"]],
-  agent: [["", "Overview"], ["cash-in", "Cash in"], ["cash-out", "Cash out"], ["transactions", "History"], ["profile", "Profile"]],
+  user: [["", "Overview"], ["send", "Send money"], ["deposit", "Add money"], ["withdraw", "Withdraw"], ["cash-out", "Cash out"], ["transactions", "History"], ["profile", "Profile"]],
+  agent: [["", "Overview"], ["cash-in", "Cash in"], ["cash-out", "Incoming cash-outs"], ["transactions", "History"], ["profile", "Profile"]],
   admin: [["", "Overview"], ["users", "Members"], ["agents", "Agents"], ["transactions", "History"], ["profile", "Profile"], ["settings", "Settings"]],
 };
 

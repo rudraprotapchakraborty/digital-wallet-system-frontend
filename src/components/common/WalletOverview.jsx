@@ -11,11 +11,15 @@ const labels = { add_money: "Deposits", withdraw: "Withdrawals", send_money: "Tr
 async function loadSummary(role, signal) {
   const get = async path => (await api.get(path, { signal })).data;
   if (role === "admin") {
-    const [members, wallets, transactions] = await Promise.all([get("/admin/users"), get("/admin/wallets"), get("/admin/transactions")]);
+    const [members, wallets, transactions] = await Promise.all([
+      get("/admin/users"), get("/admin/wallets"), get("/admin/transactions"),
+    ]);
     return { transactions, metrics: [["Members", members.length], ["Wallets", wallets.length], ["Transaction volume", currency(transactions.reduce((n, row) => n + row.amount, 0))]] };
   }
-  const [transactions, account] = await Promise.all([get("/wallet/transactions"), get(role === "agent" ? "/agent/commission" : "/wallet/me")]);
-  const metrics = role === "agent" ? [["Commission earned", currency(account.total)], ["Cash in", transactions.filter(t => t.type === "cash_in").length], ["Cash out", transactions.filter(t => t.type === "cash_out").length]] :
+  const [transactions, account, commission] = await Promise.all([
+    get("/wallet/transactions"), get("/wallet/me"), role === "agent" ? get("/agent/commission") : null,
+  ]);
+  const metrics = role === "agent" ? [["Wallet balance", currency(account.balance)], ["Commission earned", currency(commission.total)], ["Cash in", transactions.filter(t => t.type === "cash_in").length], ["Cash out", transactions.filter(t => t.type === "cash_out").length]] :
     [["Available balance", currency(account.balance)], ["Transactions", transactions.length], ["Wallet status", account.isBlocked ? "Blocked" : "Active"]];
   return { transactions, metrics };
 }

@@ -23,6 +23,7 @@ const UserDashboard = lazy(() => import("./pages/user/UserDashboard"));
 const UserTransactions = lazy(() => import("./pages/user/UserTransactions"));
 const UserSendMoney = lazy(() => import("./pages/user/UserSendMoney"));
 const UserDeposit = lazy(() => import("./pages/user/UserDeposit"));
+const UserCashOut = lazy(() => import("./pages/user/UserCashOut"));
 const UserWithdraw = lazy(() => import("./pages/user/UserWithdraw"));
 const UserProfile = lazy(() => import("./pages/user/UserProfile"));
 
@@ -72,6 +73,7 @@ const App = () => {
             <Route path="transactions" element={<UserTransactions />} />
             <Route path="send" element={<UserSendMoney />} />
             <Route path="deposit" element={<UserDeposit />} />
+            <Route path="cash-out" element={<UserCashOut />} />
             <Route path="withdraw" element={<UserWithdraw />} />
             <Route path="profile" element={<UserProfile />} />
           </Route>

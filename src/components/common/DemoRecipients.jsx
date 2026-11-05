@@ -3,7 +3,7 @@ import { ArrowUpRight, Check } from "lucide-react";
 import api from "../../services/api";
 import Avatar from "./Avatar";
 
-export default function DemoRecipients({ phone, onSelect, disabled }) {
+export default function DemoRecipients({ phone, onSelect, disabled, agent, agents }) {
   const [people, setPeople] = useState([]);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -11,15 +11,15 @@ export default function DemoRecipients({ phone, onSelect, disabled }) {
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true); setError(false);
-    api.get("/wallet/demo-recipients", { signal: controller.signal })
+    api.get("/wallet/demo-recipients", { params: agents ? { role: "agent" } : undefined, signal: controller.signal })
       .then(({ data }) => setPeople(data))
       .catch(() => { if (!controller.signal.aborted) setError(true); })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [attempt]);
+  }, [attempt, agents]);
 
-  return <aside className="recipient-panel" aria-label="Demo recipients">
-    <h2>Demo recipients</h2><p>Choose a wallet to fill in the receiver’s number.</p>
+  return <aside className="recipient-panel" aria-label={agents ? "Demo agents" : agent ? "Demo members" : "Demo recipients"}>
+    <h2>{agents ? "Demo agents" : agent ? "Demo members" : "Demo recipients"}</h2><p>Choose a wallet to fill in the phone number.</p>
     {loading ? <p role="status">Loading recipients…</p> : error ?
       <button type="button" className="settings-link" onClick={() => setAttempt(n => n + 1)}>Retry loading recipients</button> :
       people.length ? <div>{people.map(person => <button type="button" className="recipient-row" key={person.phone}

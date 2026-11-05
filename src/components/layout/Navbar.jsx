@@ -22,7 +22,7 @@ export default function Navbar() {
       <button className="icon-btn" onClick={toggleTheme} aria-label={theme === "dark" ? "Use light theme" : "Use dark theme"}>{theme === "dark" ? <Sun size={18}/> : <Moon size={18}/>}</button>
       {user && <Link to={`/${user.role}/profile`} aria-label="Account settings" title="Account settings"><Avatar user={user} size={32}/></Link>}
       {!user && <Link className="login-link" to="/login">Log in</Link>}
-      <Link className="pill compact" to={user ? "/" + user.role : "/register"}>{user ? "My wallet" : "Get started"} <ArrowUpRight size={15}/></Link>
+      <Link className="pill compact" to={user ? "/" + user.role : "/register"}>{user ? (user.role === "admin" ? "Dashboard" : "My wallet") : "Get started"} <ArrowUpRight size={15}/></Link>
       <button className="icon-btn menu-toggle" aria-expanded={open} aria-controls="site-nav" aria-label="Toggle menu" onClick={() => setMenuAt(open ? null : pathname)}>{open ? <X/> : <Menu/>}</button>
     </div>
   </div></header>;

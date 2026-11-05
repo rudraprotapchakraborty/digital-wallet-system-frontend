@@ -25,7 +25,7 @@ const questions = [
   ["How do I send money?", "Open Send money from your wallet. Enter the recipient’s wallet phone number and the amount, then review and confirm the transfer."],
   ["Where can I find a transfer?", "Open History in your dashboard. Use the transaction reference, date range, or type to narrow the list."],
   ["How are agents approved?", "Choose Agent account during registration. An administrator reviews the account before an agent can sign in."],
-  ["How do I add or withdraw money?", "Choose Add money or Withdraw in your personal wallet. Approved agents can also record cash-in and cash-out using your wallet phone number."],
+  ["How do I add or withdraw money?", "Choose Add money or Withdraw in your personal wallet. For physical cash, choose Cash out, enter an approved agent’s number, and confirm before collecting cash."],
 ];
 
 export default function InfoPage({ page }) {
