@@ -1,4 +1,4 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
@@ -11,33 +11,34 @@ import Features from "./pages/public/Features";
 import Pricing from "./pages/public/Pricing";
 import Contact from "./pages/public/Contact";
 import FAQ from "./pages/public/FAQ";
-import Login from "./pages/public/Login";
-import Register from "./pages/public/Register";
+const Login = lazy(() => import("./pages/public/Login"));
+const ForgotPassword = lazy(() => import("./pages/public/ForgotPassword"));
+const Register = lazy(() => import("./pages/public/Register"));
 
 // Layout
-import DashboardLayout from "./components/layout/DashboardLayout";
+const DashboardLayout = lazy(() => import("./components/layout/DashboardLayout"));
 
 // User
-import UserDashboard from "./pages/user/UserDashboard";
-import UserTransactions from "./pages/user/UserTransactions";
-import UserSendMoney from "./pages/user/UserSendMoney";
-import UserDeposit from "./pages/user/UserDeposit";
-import UserWithdraw from "./pages/user/UserWithdraw";
-import UserProfile from "./pages/user/UserProfile";
+const UserDashboard = lazy(() => import("./pages/user/UserDashboard"));
+const UserTransactions = lazy(() => import("./pages/user/UserTransactions"));
+const UserSendMoney = lazy(() => import("./pages/user/UserSendMoney"));
+const UserDeposit = lazy(() => import("./pages/user/UserDeposit"));
+const UserWithdraw = lazy(() => import("./pages/user/UserWithdraw"));
+const UserProfile = lazy(() => import("./pages/user/UserProfile"));
 
 // Agent
-import AgentDashboard from "./pages/agent/AgentDashboard";
-import AgentCashIn from "./pages/agent/AgentCashIn";
-import AgentCashOut from "./pages/agent/AgentCashOut";
-import AgentTransactions from "./pages/agent/AgentTransactions";
-import AgentProfile from "./pages/agent/AgentProfile";
+const AgentDashboard = lazy(() => import("./pages/agent/AgentDashboard"));
+const AgentCashIn = lazy(() => import("./pages/agent/AgentCashIn"));
+const AgentCashOut = lazy(() => import("./pages/agent/AgentCashOut"));
+const AgentTransactions = lazy(() => import("./pages/agent/AgentTransactions"));
+const AgentProfile = lazy(() => import("./pages/agent/AgentProfile"));
 
 // Admin
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminAgents from "./pages/admin/AdminAgents";
-import AdminTransactions from "./pages/admin/AdminTransactions";
-import AdminSettings from "./pages/admin/AdminSettings";
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminAgents = lazy(() => import("./pages/admin/AdminAgents"));
+const AdminTransactions = lazy(() => import("./pages/admin/AdminTransactions"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 
 const App = () => {
   return (
@@ -45,6 +46,7 @@ const App = () => {
       <Navbar />
 
       <main className="flex-1">
+        <Suspense fallback={<p role="status" className="frame py-12">Loading wallet…</p>}>
         <Routes>
           {/* Public */}
           <Route path="/" element={<Home />} />
@@ -53,6 +55,7 @@ const App = () => {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
@@ -102,12 +105,14 @@ const App = () => {
             <Route path="users" element={<AdminUsers />} />
             <Route path="agents" element={<AdminAgents />} />
             <Route path="transactions" element={<AdminTransactions />} />
+            <Route path="profile" element={<UserProfile />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </Suspense>
       </main>
 
       <Footer />

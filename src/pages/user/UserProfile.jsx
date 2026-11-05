@@ -1,190 +1,172 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { 
-  User as UserIcon, 
-  Phone, 
-  Lock, 
-  Save, 
-  ShieldCheck, 
-  Loader2,
-  Camera,
-  Verified,
-  Sparkles
-} from "lucide-react";
+import { useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useTheme } from "../../context/ThemeContext";
+import EmailCode, { useResendTimer } from "../../components/common/EmailCode";
+import Avatar from "../../components/common/Avatar";
 import api from "../../services/api";
-import toast from "react-hot-toast";
-import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
-import Card from "../../components/ui/Card";
 
-const UserProfile = () => {
-  const { user, setUser } = useAuth();
-  const { theme } = useTheme();
-  const dark = theme === "dark";
+function Section({ id, title, hint, children }) {
+  return <section className="settings-row" aria-labelledby={id}>
+    <div><h2 id={id}>{title}</h2><p>{hint}</p></div>
+    <div className="settings-controls">{children}</div>
+  </section>;
+}
 
-  const [form, setForm] = useState({
-    name: user?.name || "",
-    phone: user?.phone || "",
-    password: "",
-  });
+async function photoData(file) {
+  if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type)) throw new Error("Choose a JPG, PNG, WebP or GIF photo.");
+  if (file.size > 15 * 1024 * 1024) throw new Error("Choose a photo smaller than 15 MB.");
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    img.src = url;
+    try { await img.decode(); } catch { throw new Error("This image could not be read."); }
+    const scale = Math.min(1, 512 / Math.max(img.naturalWidth, img.naturalHeight));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.88);
+  } finally { URL.revokeObjectURL(url); }
+}
 
-  const [loading, setLoading] = useState(false);
+export default function UserProfile() {
+  const { user, setUser, acceptSession, logout } = useAuth();
+  const navigate = useNavigate();
+  const [name, setName] = useState(user.name || "");
+  const [phone, setPhone] = useState(user.phone || "");
+  const [busy, setBusy] = useState("");
+  const locked = useRef(false);
+  const [message, setMessage] = useState(null);
+  const [email, setEmail] = useState("");
+  const [pending, setPending] = useState(null);
+  const [code, setCode] = useState("");
+  const [seconds, restartTimer] = useResendTimer();
+  const [current, setCurrent] = useState("");
+  const [deletion, setDeletion] = useState(null);
+  const [proof, setProof] = useState("");
+  const identifier = user.email || user.phone;
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  async function run(section, action) {
+    if (locked.current) return;
+    locked.current = true;
+    setBusy(section); setMessage(null);
     try {
-      setLoading(true);
-
-      const payload = {
-        name: form.name,
-        phone: form.phone,
-      };
-
-      if (form.password) payload.password = form.password;
-
-      const res = await api.patch("/auth/me", payload).catch(() => ({
-        data: {
-          user: { ...user, name: form.name, phone: form.phone },
-        },
-      }));
-
-      setUser(res.data.user);
-      localStorage.setItem("wallet_user", JSON.stringify(res.data.user));
-      toast.success("Identity updated successfully.", {
-        style: {
-          borderRadius: '12px',
-          background: dark ? '#171717' : '#fff',
-          color: dark ? '#fff' : '#000',
-        },
-      });
-      setForm(prev => ({ ...prev, password: "" }));
+      const text = await action();
+      if (text) setMessage({ section, text });
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Protocol update failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <section className="max-w-4xl">
-      {/* PAGE HEADER */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-10"
-      >
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-[10px] font-black uppercase tracking-widest mb-4">
-          <Verified size={12} /> Account Verification Level 1
-        </div>
-        <h1 className={`text-4xl font-black tracking-tighter ${dark ? "text-white" : "text-slate-900"}`}>
-          Your <span className="text-blue-500">Identity</span>
-        </h1>
-        <p className={`mt-2 text-lg ${dark ? "text-neutral-400" : "text-slate-500"}`}>
-          Manage your personal details and secure your digital wallet credentials.
-        </p>
-      </motion.div>
-
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* LEFT COLUMN: IDENTITY CARD */}
-        <div className="lg:col-span-1">
-          <Card className="flex flex-col items-center text-center p-8 border-none shadow-2xl">
-            <div className="relative group">
-              <div className="h-28 w-28 rounded-[2rem] bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-4xl font-black shadow-xl group-hover:scale-105 transition-transform duration-500">
-                {user?.name?.charAt(0) || "U"}
-              </div>
-              <button className={`absolute -bottom-1 -right-1 p-2.5 rounded-2xl border-4 ${dark ? 'bg-neutral-900 border-neutral-900' : 'bg-white border-white'} text-blue-500 shadow-xl hover:scale-110 transition-transform`}>
-                <Camera size={18} />
-              </button>
-            </div>
-            
-            <div className="mt-6">
-              <h2 className="text-2xl font-black tracking-tight flex items-center justify-center gap-2">
-                {user?.name}
-              </h2>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 mt-1">
-                Verified Member
-              </p>
-            </div>
-
-            <div className={`mt-8 w-full p-4 rounded-2xl border flex items-center justify-between ${dark ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-black/5'}`}>
-               <div className="text-left">
-                  <p className="text-[10px] font-black uppercase opacity-40">Wallet Status</p>
-                  <p className="text-xs font-bold text-emerald-500 flex items-center gap-1.5">
-                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
-                  </p>
-               </div>
-               <ShieldCheck size={20} className="text-blue-500/50" />
-            </div>
-          </Card>
-        </div>
-
-        {/* RIGHT COLUMN: EDIT FORM */}
-        <div className="lg:col-span-2">
-          <Card className="border-none shadow-2xl">
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="grid md:grid-cols-2 gap-6">
-                <Input
-                  label="Legal Full Name"
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  icon={UserIcon}
-                  placeholder="e.g. John Doe"
-                />
-
-                <Input
-                  label="Verified Phone"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  icon={Phone}
-                  placeholder="01XXXXXXXXX"
-                />
-              </div>
-
-              <div className={`p-6 rounded-[1.5rem] border ${dark ? 'bg-white/[0.02] border-white/5' : 'bg-slate-50 border-black/5'}`}>
-                <div className="flex items-center gap-2 mb-4 text-blue-500">
-                  <Lock size={16} />
-                  <span className="text-xs font-black uppercase tracking-widest">Security Update</span>
-                </div>
-                <Input
-                  label="Update Password"
-                  name="password"
-                  type="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  placeholder="Keep empty to stay unchanged"
-                />
-                <div className="mt-4 flex items-start gap-2 opacity-50">
-                  <Sparkles size={14} className="mt-0.5 text-blue-500 flex-shrink-0" />
-                  <p className="text-[10px] leading-relaxed italic">
-                    Use a unique combination of symbols and letters to maximize your wallet's defensive strength.
-                  </p>
-                </div>
-              </div>
-
-              <Button type="submit" disabled={loading} className="w-full h-14 text-lg font-black uppercase tracking-widest shadow-lg shadow-blue-500/25">
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="animate-spin" size={20} /> Processing...
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Save size={20} /> Save Changes
-                  </div>
-                )}
-              </Button>
-            </form>
-          </Card>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-export default UserProfile;
+      setMessage({ section, error: true, text: err.response?.data?.message || (err.isAxiosError ? "Could not reach the wallet service. Please retry." : err.message) });
+    } finally { locked.current = false; setBusy(""); }
+  }
+  function feedback(section) {
+    if (message?.section !== section) return null;
+    return <p role={message.error ? "alert" : "status"} className={message.error ? "form-error" : "form-note"}>{message.text}</p>;
+  }
+  function submit(section, action) {
+    return event => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      run(section, () => action(form));
+    };
+  }
+  async function saveDetails(fields) {
+    const { data } = await api.patch("/auth/me", fields);
+    setUser(data.user); setName(data.user.name); setPhone(data.user.phone);
+    return "Changes saved.";
+  }
+  async function startChange() {
+    const { data } = await api.post("/auth/me/email", { email, currentPassword: current });
+    setPending(data.requestId); setCode(""); restartTimer();
+    return "A verification code was sent to " + email + ".";
+  }
+  async function changeEmail() {
+    if (!pending) return startChange();
+    const { data } = await api.put("/auth/me/email", { requestId: pending, code });
+    setPending(null); setCode("");
+    acceptSession(data); setEmail(""); setCurrent("");
+    return "Your sign-in email has been updated.";
+  }
+  async function savePassword(form) {
+    const fields = Object.fromEntries(new FormData(form));
+    if (fields.newPassword !== fields.confirmPassword) throw new Error("The new passwords must match.");
+    const { data } = await api.post("/auth/me/password", { currentPassword: fields.currentPassword, newPassword: fields.newPassword });
+    acceptSession(data); form.reset();
+    return "Password saved.";
+  }
+  async function openDeletion() {
+    const { data } = await api.get("/wallet/me");
+    setProof(""); setDeletion({ balance: data.balance });
+  }
+  async function removeAccount() {
+    await api.delete("/auth/me", { data: { confirmation: proof, balance: deletion.balance } });
+    logout(); navigate("/", { replace: true });
+  }
+  return <div className="account-settings"><header><h1>Account settings</h1><p>Manage your profile, sign-in details, and wallet account.</p></header>
+    {user.sharedDemo && <p className="form-note mb-4">This shared test account has a read-only profile. Create a personal wallet to edit your settings.</p>}
+    <fieldset disabled={Boolean(busy) || user.sharedDemo} className="settings-group">
+      <Section id="settings-profile" title="Profile" hint="Choose the photo and name shown on your account.">
+        <div className="photo-editor"><Avatar user={user}/><div><div className="settings-actions">
+          <label className="settings-outline">{busy === "photo" ? "Updating…" : user.avatar ? "Change photo" : "Upload photo"}
+            <input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={e => {
+              const file = e.target.files?.[0]; e.target.value = "";
+              if (file) run("photo", async () => {
+                const { data } = await api.post("/auth/me/avatar", { image: await photoData(file) }, { timeout: 25000 });
+                setUser(data.user); return "Photo updated.";
+              });
+            }}/></label>
+          {user.avatar && <button type="button" className="settings-link" onClick={() => run("photo", async () => {
+            const { data } = await api.delete("/auth/me/avatar"); setUser(data.user); return "Photo removed from profile.";
+          })}>Remove photo</button>}
+        </div><small>JPG, PNG, WebP or GIF. Up to 15 MB.</small></div></div>
+        {feedback("photo")}
+        <form className="field-stack" onSubmit={submit("name", () => saveDetails({ name }))}>
+          <label>Full name<input autoComplete="name" required maxLength={100} value={name} onChange={e => setName(e.target.value)}/></label>
+          <button className="settings-save" disabled={!name.trim() || name.trim() === user.name}>{busy === "name" ? "Saving…" : "Save name"}</button>{feedback("name")}
+        </form>
+      </Section>
+      <Section id="settings-email" title="Email address" hint="Use your email address to sign in and recover your password.">
+        <dl className="settings-current"><dt>Current email</dt><dd>{user.email || "No email added"}</dd></dl>
+        {!user.hasPassword ? <p><a className="settings-link" href="#settings-password">Set a password</a> before changing your email.</p> :
+          <form className="field-stack" onSubmit={submit("email", changeEmail)}>
+            {pending ? <EmailCode value={code} onChange={setCode}/> : <><label>New email address<input type="email" autoComplete="email" maxLength={254} required value={email} onChange={e => setEmail(e.target.value)}/></label>
+            <label>Current password<input type="password" autoComplete="current-password" required value={current} onChange={e => setCurrent(e.target.value)}/></label></>}
+            {user.usesGoogle && <p>Changing your email disconnects Google sign-in. You can sign in with your new email or phone number and password.</p>}
+            <div className="settings-actions"><button className="settings-save">{busy === "email" ? "Please wait…" : pending ? "Confirm email" : "Send verification code"}</button>
+              {pending && <><button type="button" className="settings-link" disabled={seconds > 0} onClick={() => run("email", startChange)}>{seconds ? `Resend in ${seconds}s` : "Resend code"}</button>
+                <button type="button" onClick={() => { setPending(null); setMessage(null); }}>Start over</button></>}
+            </div>{feedback("email")}
+          </form>}
+      </Section>
+      <Section id="settings-phone" title="Wallet phone number" hint="People use this number to send money to your wallet.">
+        <form className="field-stack" onSubmit={submit("phone", () => saveDetails({ phone }))}>
+          <label>Phone number<input type="tel" autoComplete="tel" pattern="[+]?[0-9]{7,15}" required value={phone} onChange={e => setPhone(e.target.value)}/></label>
+          <button className="settings-save" disabled={phone.trim() === user.phone}>{busy === "phone" ? "Saving…" : "Save phone number"}</button>{feedback("phone")}
+        </form>
+      </Section>
+      <Section id="settings-password" title="Password" hint={user.hasPassword ? "Choose a new password for your account." : "Add a password to sign in with your email as well as Google."}>
+        <form className="field-stack" onSubmit={submit("password", savePassword)}>
+          {user.hasPassword && <label>Current password<input name="currentPassword" type="password" required autoComplete="current-password"/></label>}
+          {user.hasPassword && <Link to="/forgot-password" className="settings-link">Forgot password?</Link>}
+          <label>New password<input type="password" name="newPassword" placeholder="At least 8 characters" required minLength={8} autoComplete="new-password"/></label>
+          <label>Confirm new password<input type="password" name="confirmPassword" required autoComplete="new-password"/></label>
+          <button className="settings-save">{busy === "password" ? "Saving…" : user.hasPassword ? "Change password" : "Set password"}</button>{feedback("password")}
+        </form>
+      </Section>
+      <Section id="settings-methods" title="Sign-in methods" hint="These are the ways you can access your account.">
+        <ul className="method-list">{[["Email or phone and password", user.hasPassword, "Enabled", "Not set"], ["Google", user.usesGoogle, "Connected", "Not connected"]].map(([label, active, yes, no]) =>
+          <li key={label}><span>{label}</span><span className={active ? "method-on" : ""}>{active ? yes : no}</span></li>)}</ul>
+      </Section>
+      <Section id="settings-delete" title="Delete account" hint="Permanently close your account and wallet. Other participants keep their transaction records.">
+        {deletion ? <form className="field-stack deletion-panel" onSubmit={submit("delete", removeAccount)}>
+          <h3>Permanently delete this wallet?</h3><p>This cannot be undone. Your wallet balance is <strong>{deletion.balance.toLocaleString("en-IN", { style: "currency", currency: "INR" })}</strong>.
+          {deletion.balance > 0 && " Deleting it forfeits that balance."}</p>
+          <label>Type {identifier} to confirm<input type={user.email ? "email" : "tel"} required autoComplete="off" value={proof} onChange={e => setProof(e.target.value)}/></label>
+          <div className="settings-actions"><button className="delete-confirm" disabled={proof.trim().toLowerCase() !== identifier}>{busy === "delete" ? "Deleting…" : "Permanently delete account"}</button>
+            <button type="button" onClick={() => { setDeletion(null); setProof(""); setMessage(null); }}>Cancel</button></div>
+        </form> : <button className="delete-start" onClick={() => run("delete", openDeletion)}>Delete account</button>}
+        {feedback("delete")}
+      </Section>
+    </fieldset></div>;
+}
