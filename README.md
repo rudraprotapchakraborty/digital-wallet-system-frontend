@@ -1,8 +1,8 @@
-# DigiPay · Web app
+# DigiPay · Digital Wallet System — Web app
 
 A digital wallet simulator with three ways to explore a transaction. Send money as a customer, handle cash at an agent counter, or oversee wallets as an administrator.
 
-**[Open DigiPay](https://digital-wallet-system-frontend-topaz.vercel.app/) · [Try a demo login](https://digital-wallet-system-frontend-topaz.vercel.app/login) · [Backend repository](https://github.com/rudraprotapchakraborty/B5-Assignment-5)**
+**[Open DigiPay](https://digital-wallet-system-frontend-topaz.vercel.app/) · [Try a demo login](https://digital-wallet-system-frontend-topaz.vercel.app/login) · [Backend repository](https://github.com/rudraprotapchakraborty/digital-wallet-system-backend)**
 
 ## Explore the demo
 
@@ -22,7 +22,7 @@ Returning members can sign in with Google or use an email address or phone numbe
 
 ## Run locally
 
-Use **Node.js 24 or newer**. Start the [wallet API](https://github.com/rudraprotapchakraborty/B5-Assignment-5#run-locally) on port 5000, then run these commands from this repository.
+Use **Node.js 24 or newer**. Start the [wallet API](https://github.com/rudraprotapchakraborty/digital-wallet-system-backend#run-locally) on port 5000, then run these commands from this repository.
 
 ```sh
 npm ci
