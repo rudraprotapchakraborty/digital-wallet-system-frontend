@@ -1,8 +1,10 @@
-# DigiPay · Digital Wallet System — Web app
+# Digital Wallet System · Web app
+
+The interface is branded **DigiPay**; the project itself is a digital wallet system.
 
 A digital wallet simulator with three ways to explore a transaction. Send money as a customer, handle cash at an agent counter, or oversee wallets as an administrator.
 
-**[Open DigiPay](https://digital-wallet-system-frontend-topaz.vercel.app/) · [Try a demo login](https://digital-wallet-system-frontend-topaz.vercel.app/login) · [Backend repository](https://github.com/rudraprotapchakraborty/digital-wallet-system-backend)**
+**[Open the live app](https://digital-wallet-system-frontend-topaz.vercel.app/) · [Try a demo login](https://digital-wallet-system-frontend-topaz.vercel.app/login) · [Backend repository](https://github.com/rudraprotapchakraborty/digital-wallet-system-backend)**
 
 ## Explore the demo
 
@@ -34,7 +36,7 @@ Open **[localhost:3000](http://localhost:3000)**. Vite forwards requests under `
 | Frontend setting | When to set it in `.env.local` |
 | --- | --- |
 | `GOOGLE_CLIENT_ID` | To enable Google sign-in, use the same public web client ID as the backend. Authorize the local and deployed frontend origins in Google Cloud. |
-| `VITE_API_URL` | To target another API, supply its full base URL including `/api`. Production builds otherwise use the hosted DigiPay API. |
+| `VITE_API_URL` | To target another API, supply its full base URL including `/api`. Production builds otherwise use the hosted API. |
 
 ## Build and preview
 
