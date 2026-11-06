@@ -12,7 +12,8 @@ export default function Navbar() {
   const { pathname } = useLocation();
   const [menuAt, setMenuAt] = useState(null);
   const open = menuAt === pathname;
-  return <header className="site-header"><div className="frame header-inner">
+  const inDashboard = /^\/(user|agent|admin)(\/|$)/.test(pathname);
+  return <header className={inDashboard ? "site-header" : "site-header sticky-header"}><div className="frame header-inner">
     <Brand />
     <nav id="site-nav" className={open ? "site-nav open" : "site-nav"} aria-label="Main navigation">
       {[["/", "Overview"], ["/features", "Features"], ["/pricing", "Pricing"], ["/faq", "FAQ"]].map(([path, label]) =>

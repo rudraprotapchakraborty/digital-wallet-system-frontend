@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useLayoutEffect, useState } from "react";
 
 const ThemeContext = createContext(null);
 
@@ -7,7 +7,8 @@ export const ThemeProvider = ({ children }) => {
     () => localStorage.getItem("wallet_theme") || "light"
   );
 
-  useEffect(() => {
+  // Layout effect: the theme is applied before the first paint, so there is no light flash
+  useLayoutEffect(() => {
     const body = document.body;
 
     body.classList.toggle("dark", theme === "dark");
@@ -15,6 +16,9 @@ export const ThemeProvider = ({ children }) => {
   }, [theme]);
 
   const toggleTheme = () => {
+    const root = document.documentElement;
+    root.classList.add("theme-switching");
+    window.setTimeout(() => root.classList.remove("theme-switching"), 450);
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };
 

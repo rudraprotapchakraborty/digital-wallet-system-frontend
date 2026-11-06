@@ -1,5 +1,5 @@
-import React, { lazy, Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import React, { lazy, Suspense, useEffect } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import ProtectedRoute from "./components/common/ProtectedRoute";
@@ -42,12 +42,28 @@ const AdminTransactions = lazy(() => import("./pages/admin/AdminTransactions"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 
 const App = () => {
+  const { pathname } = useLocation();
+  const inDashboard = /^\/(user|agent|admin)(\/|$)/.test(pathname);
+
+  // Fade sections in as they scroll into view
+  useEffect(() => {
+    document.documentElement.classList.add("js");
+    const items = document.querySelectorAll("[data-reveal]");
+    if (!("IntersectionObserver" in window)) { items.forEach(el => el.classList.add("in-view")); return; }
+    const io = new IntersectionObserver(entries => entries.forEach(entry => {
+      if (entry.isIntersecting) { entry.target.classList.add("in-view"); io.unobserve(entry.target); }
+    }), { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+    items.forEach(el => io.observe(el));
+    return () => io.disconnect();
+  }, [pathname]);
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <Navbar />
 
       <main className="flex-1">
-        <Suspense fallback={<p role="status" className="frame py-12">Loading wallet…</p>}>
+        <Suspense fallback={<div role="status" className="frame grid gap-4 py-12"><span className="sr-only">Loading wallet…</span><div className="skeleton" style={{ height: 38, width: "38%" }}/><div className="skeleton" style={{ height: 150 }}/><div className="skeleton" style={{ height: 90, width: "70%" }}/></div>}>
+        <div key={inDashboard ? "dashboard" : pathname} className="page-enter">
         <Routes>
           {/* Public */}
           <Route path="/" element={<Home />} />
@@ -114,6 +130,7 @@ const App = () => {
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </div>
         </Suspense>
       </main>
 

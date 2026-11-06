@@ -19,7 +19,7 @@ export default function Home() {
       <p>Send, receive, and manage your money from one digital wallet. Your balance and every transfer, all in one place.</p>
       <div className="hero-actions"><Link className="pill" to={user ? "/" + user.role : "/register"}>{user ? "Open my wallet" : "Create a wallet"} <ArrowUpRight size={19}/></Link><Link className="text-action" to="/features">Explore features <ArrowRight size={16}/></Link></div>
     </div><WalletArtwork/></section>
-    <section className="action-section"><div className="section-head"><h2>Everyday essentials<span>.</span></h2><Link className="text-action" to="/features">All features <ArrowUpRight size={16}/></Link></div>
+    <section className="action-section" data-reveal><div className="section-head"><h2>Everyday essentials<span>.</span></h2><Link className="text-action" to="/features">All features <ArrowUpRight size={16}/></Link></div>
       <div className="action-grid">{actions.map(({title,text,icon:Icon,to,color}) => <Link className="action-tile" to={user && user.role !== "user" ? "/" + user.role : to} key={title}>
         <span className={`tile-icon ${color}`}><Icon size={25}/></span><ArrowUpRight className="tile-arrow" size={16}/><h3>{title}</h3><p>{text}</p>
       </Link>)}</div>
