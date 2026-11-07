@@ -259,3 +259,12 @@ button:disabled,fieldset:disabled .settings-outline {cursor:default;opacity:.6;}
   /* the dark pill keeps light text (the generic menu-link colour would make it invisible) */
   .site-nav.open .mobile-cta .pill { color:var(--paper); }
 }
+
+/* "Made by" credit in the footer */
+.made-by { display:inline-flex; align-items:center; gap:8px; padding:6px 14px 6px 12px; border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--muted); font-size:12px; font-weight:500; text-decoration:none; box-shadow:0 1px 2px rgb(0 0 0 / .06); transition:transform .2s ease, border-color .2s ease, color .2s ease; }
+.made-by b { color:var(--ink); font-weight:700; }
+.made-by svg { color:var(--green); fill:var(--green); transition:transform .2s ease; }
+.made-by svg:last-child { fill:none; opacity:.6; }
+.made-by:hover { transform:translateY(-2px); border-color:var(--green); color:var(--ink); }
+.made-by:hover svg:first-child { transform:scale(1.25); }
+.made-by:hover svg:last-child { opacity:1; }
